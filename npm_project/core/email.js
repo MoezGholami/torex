@@ -3,6 +3,7 @@ const nodemailer    = require('nodemailer');
 const Imap          = require('imap');
 const simpleParser  = require('mailparser').simpleParser;
 const inspect       = require('util').inspect;
+const PhantomUtils  = require(appRoot+'/core/phantomUtils');
 
 var createEmail = function() {
     return new Promise((resolve, reject) => {
@@ -20,7 +21,7 @@ var createEmail = function() {
     });
 };
 
-var fetchEmails = function(emailAccount) {
+var tryToFetchEmails = function(emailAccount) {
     var config = {
         user: emailAccount.email,
         password: emailAccount.password,
@@ -65,5 +66,19 @@ var fetchEmails = function(emailAccount) {
         imap.connect();
     });
 };
+
+var fetchEmails = function(emailAccount) {
+    return new Promise((resolve, reject) => {
+        tryToFetchEmails(emailAccount).then(emails => {
+            if(emails.length > 0) {
+                resolve(emails);
+            }
+            else
+                PhantomUtils.delay(1000).then(fetchEmails(emailAccount).then(resolve).catch(reject));
+        }).catch(e => {
+            reject(e);
+        });
+    });
+}
 
 module.exports = {fetchEmails: fetchEmails, createEmail: createEmail};

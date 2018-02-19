@@ -6,6 +6,7 @@ var signup = async function() {
     try {
         var account = await Email.createEmail();
         console.error('temp email created');
+        console.error(account);
         await Github.signupAndVerifyGithub(account);
         var result = {email: account.email, username: account.username, password: account.password};
         console.log(result.email);

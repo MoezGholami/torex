@@ -38,7 +38,7 @@ var signupGithub = async function(account, page, loadWaitFunction) {
 
 var verifyGithubAccount = async function(account, page, loadWaitFunction){
     var waitForLoad = loadWaitFunction;
-    var confirmLink = await PhantomUtils.delay(4000).then(() => Email.fetchEmails(account)).
+    var confirmLink = await Email.fetchEmails(account).
         then((emails) => {
             console.error('emails fetched: length: ');
             console.error(emails.length);
