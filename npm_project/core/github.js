@@ -64,18 +64,30 @@ var extractGithubVerificationLink = function(emails) {
     });
 };
 
-var signupForCircleci = async function(account, page, loadWaitFunction){
+var signupForTravisCI = async function(account, page, loadWaitFunction){
     var waitForLoad = loadWaitFunction;
-    await page.evaluate(function() { location.replace('https://circleci.com/login'); });
+    await page.evaluate(function() { location.replace('https://travis-ci.org'); });
     await waitForLoad();
-    await page.render('auth-form.pdf');
+    await page.render('first_page.pdf');
     await page.evaluate(function() {
-        var button = document.getElementById('js-oauth-authorize-btn');
-        button.disabled=false;
-        button.click();
+        location.replace("https://api.travis-ci.org/auth/handshake?redirect_uri=https://travis-ci.org/");
+
     });
-    await waitForLoad();
-    await page.render('after-auth-form.pdf');
+    // /*
+    for(var i=0; i<2; i++) {
+        await waitForLoad();
+        await page.render('auth.pdf');
+        await page.evaluate(function() {
+            console.log(document.URL);
+            var button = document.getElementById('js-oauth-authorize-btn');
+            button.disabled=false;
+            button.click();
+        });
+        await waitForLoad();
+        await page.render('after-auth-form.pdf');
+        await page.evaluate(function() {console.log(document.URL);});
+    }
+    // */
 }
 
 var signupAndVerifyGithub = async function(account) {
@@ -88,8 +100,8 @@ var signupAndVerifyGithub = async function(account) {
     console.error('signed up in github');
     await verifyGithubAccount(account, page, waitForLoad);
     console.error('verified github account');
-    await signupForCircleci(account, page, waitForLoad);
-    console.error('signed up for circleci');
+    await signupForTravisCI(account, page, waitForLoad);
+    console.error('signed up for travis ci');
     await page.render('result.pdf');
 
     await phantomInstance.exit();

@@ -20,7 +20,7 @@ var setupPhantom = async function() {
     page.on('onLoadStarted' , function() { operationInProgress = true ; });
     page.on('onLoadFinished', function() { operationInProgress = false; });
     page.on('onConsoleMessage', function(msg, lineNum, sourceId) {
-      console.log('CONSOLE: ' + msg + ' (from line #' + lineNum + ' in "' + sourceId + '")');
+      console.error('CONSOLE: ' + msg + ' (from line #' + lineNum + ' in "' + sourceId + '")');
     });
     var waitForLoad = async function() {
         var interval;
