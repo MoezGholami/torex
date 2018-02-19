@@ -1,0 +1,19 @@
+{
+  "name": "npm_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "app-root-path": "^2.0.1",
+    "imap": "^0.8.19",
+    "mailparser": "^2.1.0",
+    "nodemailer": "^4.4.2",
+    "phantom": "^4.0.12",
+    "phantomjs-prebuilt": "^2.1.16"
+  }
+}
