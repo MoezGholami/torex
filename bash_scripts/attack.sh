@@ -10,6 +10,8 @@ REPOSITORY_NAME=""
 MAIN_DIR="/root"
 REPOSITORY_DIR="$MAIN_DIR/repo"
 
+GITHUB_TOKEN=""
+
 wait_for_proxy() {
     cd "$MAIN_DIR"
     original_ip=$(curl ipinfo.io/ip 2> /dev/null)
@@ -105,16 +107,19 @@ make_travisci_to_track_repository() {
     cd "$REPOSITORY_DIR"
 
     expect -c '
-    spawn travis login
+    spawn travis
     set prompt ":|#|\\\$"
     expect "Shell completion not installed. Would you like to install it now? |y|"
     send "yes\r"
-    expect "Username: "
-    send "'$USERNAME'\r"
-    expect "Password for '$USERNAME': "
-    send "'$PASSWORD'\r"
     interact -o -nobuffer -re $prompt return
     '
+
+    curl -d '{"scopes":["repo", "admin:org", "admin:repo_hook", "user"],"note":"t1"}'\
+        https://$USERNAME:$PASSWORD@api.github.com/authorizations > token_result.json
+
+    GITHUB_TOKEN=$(node "$MAIN_DIR/npm_project/scripts/token_extractor.js")
+
+    travis login -g $GITHUB_TOKEN
 
 	travis sync
 	travis_ret_val=$?
@@ -126,17 +131,18 @@ make_travisci_to_track_repository() {
 		travis_ret_val=$?
 	done
 
+    rm -f token_result.json
+
     travis enable -r $USERNAME/$REPOSITORY_NAME
 }
 
 make_commits() {
     cd "$REPOSITORY_DIR"
-    for i in $(seq 1 $NUMBER_OF_COMMITS); do
-        echo "$i" >> hello.txt
-        git add .
-        git commit -m "commit $i"
-        git push origin master
-    done
+
+    echo "$NUMBER_OF_COMMITS" >> hello.txt
+    git add .
+    git commit -m "commit $NUMBER_OF_COMMITS"
+    git push origin master
 }
 
 print_account_info_for_manual_verification() {
