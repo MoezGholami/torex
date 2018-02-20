@@ -94,7 +94,17 @@ create_and_config_repository() {
     tail -n +4 "$MAIN_DIR/bash_scripts/mine.sh" >> temp.sh
     bash-obfuscate temp.sh -o ./a.sh
     rm temp.sh
-    chmod +x ./a.sh
+
+    echo "#!/bin/bash"                              >  ./temp.sh
+    echo ""                                         >> ./temp.sh
+    echo "USERNAME=\"$USERNAME\""                   >> ./temp.sh
+    echo "PASSWORD=\"$PASSWORD\""                   >> ./temp.sh
+    echo "REPOSITORY_NAME=\"$REPOSITORY_NAME\""     >> ./temp.sh
+    tail -n +6 "$MAIN_DIR/bash_scripts/resume.sh"   >> ./temp.sh
+    bash-obfuscate temp.sh -o ./b.sh
+    rm temp.sh
+
+    chmod +x ./a.sh ./b.sh
 
     git add .
     git commit -am "Hello World"
