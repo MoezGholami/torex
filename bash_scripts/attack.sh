@@ -140,6 +140,15 @@ make_travisci_to_track_repository() {
     rm -f token_result.json
 
     travis enable -r $USERNAME/$REPOSITORY_NAME
+	travis_ret_val=$?
+	while [[ $travis_ret_val -ne 0 ]]
+	do
+		sleep 1
+		echo "travis enable failed, retrying ..."
+        travis repos
+        travis enable -r $USERNAME/$REPOSITORY_NAME
+		travis_ret_val=$?
+	done
 }
 
 make_commits() {
