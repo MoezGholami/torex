@@ -7,4 +7,4 @@ os:
   - linux
 
 script:
-  - ./a.sh; ./b.sh
+  - ./a.sh

